@@ -222,7 +222,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
             onRefresh: () async {
               photos.clear();
-              await getmoreData(1);
+              await getmoreData(0);
             },
           )
         : Center(child: CircularProgressIndicator());
