@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:refresh_wall/ImageView/imageview.dart';
+// import 'package:refresh_wall/ImageView/imageview.dart';
 import 'package:refresh_wall/Model/PhotoModel.dart';
-import 'package:refresh_wall/widget_list/search_widget.dart';
+// import 'package:refresh_wall/widget_list/search_widget.dart';
 import 'package:refresh_wall/widget_list/wallpaper_widget.dart';
 
 class SearchPage extends StatefulWidget {
@@ -54,6 +54,42 @@ class _SearchPageState extends State<SearchPage> {
           ),
           Expanded(child: wallpaperList(photos: photos, context: context)),
         ],
+      ),
+    );
+  }
+
+  Widget searchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.grey[300],
+        ),
+        margin: EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: "Search",
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                // getTrendingWallpaper(searchController.text);
+              },
+              child: Icon(
+                Icons.search,
+                color: Color(0xffFF08C5),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
