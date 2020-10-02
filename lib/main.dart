@@ -6,6 +6,7 @@ import 'package:refresh_wall/Model/categorie.dart';
 import 'package:refresh_wall/Model/categorieTile.dart';
 import 'package:refresh_wall/Model/imageview.dart';
 import 'package:refresh_wall/Model/list.dart';
+import 'package:refresh_wall/Model/search.dart';
 
 void main() {
   runApp(MyApp());
@@ -36,11 +37,12 @@ class _MyHomePageState extends State<MyHomePage> {
   ScrollController scrollController = ScrollController();
   bool isPageAvailable = true;
   bool isLoading = false;
+  TextEditingController searchController = TextEditingController();
 
   var api = API();
   int pagenumber = 0;
 
-  getmoreData() async {
+  Future getmoreData(int pageNumber) async {
     if (isPageAvailable) {
       if (isLoading) {
         return;
@@ -50,24 +52,25 @@ class _MyHomePageState extends State<MyHomePage> {
         isLoading = true;
       });
 
-      var list = await api.getTrendingWallpaper(10, pagenumber++);
+      var list = await api.getTrendingWallpaper(10, pageNumber);
       photos.addAll(list);
       setState(() {
         isLoading = false;
       });
     }
     print("hellooo");
+    return await Future.delayed(Duration(milliseconds: 1));
   }
 
   @override
   void initState() {
     categories = getCategories();
-    getmoreData();
+    getmoreData(pagenumber++);
 
     scrollController.addListener(() {
       if (scrollController.position.maxScrollExtent ==
           scrollController.position.pixels) {
-        getmoreData();
+        getmoreData(pagenumber++);
       }
     });
     super.initState();
@@ -124,9 +127,19 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            Icon(
-              Icons.search,
-              color: Color(0xffFF08C5),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SearchPage(
+                              searchQuery: searchController.text,
+                            )));
+              },
+              child: Icon(
+                Icons.search,
+                color: Color(0xffFF08C5),
+              ),
             )
           ],
         ),
@@ -207,17 +220,31 @@ class _MyHomePageState extends State<MyHomePage> {
             //       }).toList()),
             // ],
 
-            onRefresh: getData,
+            onRefresh: () async {
+              photos.clear();
+              await getmoreData(1);
+            },
           )
         : Center(child: CircularProgressIndicator());
   }
 
-  Future getData() async {
-    var newPhotos = await api.getTrendingWallpaper(10, pagenumber);
-    setState(() {
-      photos.clear();
-      photos.addAll(newPhotos);
-    });
-    return await Future.delayed(Duration(milliseconds: 10));
-  }
+  // Future getData(bool isRefresh) async {
+  //   if (isPageAvailable) {
+  //     if (isLoading) {
+  //       return;
+  //     }
+  //     setState(() {
+  //       isLoading = true;
+  //     });
+
+  //     var newPhotos = await api.getTrendingWallpaper(10, 0);
+
+  //     photos.addAll(newPhotos);
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+
+  //     return await Future.delayed(Duration(milliseconds: 10));
+  //   }
+  // }
 }
