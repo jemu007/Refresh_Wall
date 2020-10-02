@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:refresh_wall/CategorieTile/categoriePage.dart';
+// import 'package:refresh_wall/CategorieTile/categoriePage.dart';
 
 class CategirieTile extends StatelessWidget {
-  CategirieTile({@required this.text, this.img});
+  CategirieTile({@required this.text, this.img, this.onPress});
 
   final String img;
   final String text;
+  Function(String) onPress;
 
   TextEditingController textController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => CategoriePage(
-                      categorieName: text.toLowerCase(),
-                    )));
+        onPress.call(text.toLowerCase());
       },
+      // {
+      //   Navigator.push(
+      //       context,
+      //       MaterialPageRoute(
+      //           builder: (context) => CategoriePage(
+      //                 categorieName: text.toLowerCase(),
+      //               )));
+      // },
       child: Padding(
         padding: const EdgeInsets.only(right: 9.0),
         child: ClipRRect(

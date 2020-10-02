@@ -1,10 +1,10 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:refresh_wall/API/api.dart';
+import 'package:refresh_wall/ImageView/imageview.dart';
 // import 'package:refresh_wall/ImageView/imageview.dart';
 import 'package:refresh_wall/Model/PhotoModel.dart';
 // import 'package:refresh_wall/widget_list/search_widget.dart';
-import 'package:refresh_wall/widget_list/wallpaper_widget.dart';
+// import 'package:refresh_wall/widget_list/wallpaper_widget.dart';
 
 class SearchPage extends StatefulWidget {
   String searchQuery;
@@ -17,26 +17,46 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   TextEditingController searchController = TextEditingController();
   List<PhotosModel> photos = new List();
-  getTrendingWallpaper(String query) async {
-    var responce = await http.get(
-        "https://api.pexels.com/v1/search?query=$query&per_page=10&page=1",
-        headers: {
-          "Authorization":
-              "563492ad6f917000010000010664c71aac704ff58853c07ad5991753"
-        });
-    Map<String, dynamic> jsonData = jsonDecode(responce.body);
-    jsonData["photos"].forEach((element) {
-      var photoobj = PhotosModel();
-      photoobj = PhotosModel.fromMap(element);
-      photos.add(photoobj);
-      print(element);
-    });
-    setState(() {});
+  ScrollController scrollController = ScrollController();
+
+  bool isPageAvailable = true;
+  bool isLoading = false;
+  // String query;
+
+  var api = API();
+  int pagenumber = 0;
+
+  Future getmoreData(int pageNumber) async {
+    if (isPageAvailable) {
+      if (isLoading) {
+        return;
+      }
+
+      setState(() {
+        isLoading = true;
+      });
+
+      var list =
+          await api.getTrendingWallpaper(10, pageNumber, widget.searchQuery);
+      photos.addAll(list);
+      setState(() {
+        isLoading = false;
+      });
+    }
+    print("hellooo");
+    return await Future.delayed(Duration(milliseconds: 1));
   }
 
   @override
   void initState() {
-    getTrendingWallpaper(widget.searchQuery);
+    getmoreData(pagenumber++);
+
+    scrollController.addListener(() {
+      if (scrollController.position.maxScrollExtent ==
+          scrollController.position.pixels) {
+        getmoreData(pagenumber++);
+      }
+    });
     super.initState();
     searchController.text = widget.searchQuery;
   }
@@ -93,4 +113,49 @@ class _SearchPageState extends State<SearchPage> {
       ),
     );
   }
+
+  Widget wallpaperList({List<PhotosModel> photos, context}) =>
+      photos.length != 0
+          ? RefreshIndicator(
+              child: GridView.builder(
+                  controller: scrollController,
+                  shrinkWrap: true,
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  physics: ClampingScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.6,
+                    crossAxisSpacing: 6.0,
+                    mainAxisSpacing: 6.0,
+                  ),
+                  itemCount: photos.length,
+                  itemBuilder: (BuildContext ctxt, int index) {
+                    return GridTile(
+                        child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ImageView(
+                                      imgUrl: photos[index].src.portrait,
+                                    )));
+                      },
+                      child: Hero(
+                        tag: photos[index].src.portrait,
+                        child: Container(
+                            child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Image.network(
+                                  photos[index].src.portrait,
+                                  fit: BoxFit.cover,
+                                ))),
+                      ),
+                    ));
+                  }),
+              onRefresh: () async {
+                photos.clear();
+                await getmoreData(0);
+              },
+            )
+          : Center(child: CircularProgressIndicator());
 }

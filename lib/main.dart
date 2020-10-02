@@ -38,6 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isPageAvailable = true;
   bool isLoading = false;
   TextEditingController searchController = TextEditingController();
+  String query = 'nature';
 
   var api = API();
   int pagenumber = 0;
@@ -52,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
         isLoading = true;
       });
 
-      var list = await api.getTrendingWallpaper(10, pageNumber);
+      var list = await api.getTrendingWallpaper(10, pageNumber, query);
       photos.addAll(list);
       setState(() {
         isLoading = false;
@@ -95,6 +96,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   return CategirieTile(
                     img: categories[index].imgUrl,
                     text: categories[index].categorieName,
+                    onPress: (_query) {
+                      query = _query;
+                      photos.clear();
+                      getmoreData(0);
+                    },
                   );
                 }),
           ),
@@ -102,6 +108,9 @@ class _MyHomePageState extends State<MyHomePage> {
             height: 10,
           ),
           Expanded(child: wallpaperList(photos: photos, context: context)),
+          SizedBox(
+            height: 10,
+          ),
         ],
       ),
     );
