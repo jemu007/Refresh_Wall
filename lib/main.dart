@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:refresh_wall/API/api.dart';
+import 'package:refresh_wall/ImageView/imageview.dart';
 import 'package:refresh_wall/Model/PhotoModel.dart';
-import 'package:refresh_wall/Model/api.dart';
-import 'package:refresh_wall/Model/categorie.dart';
-import 'package:refresh_wall/Model/categorieTile.dart';
-import 'package:refresh_wall/Model/imageview.dart';
-import 'package:refresh_wall/Model/list.dart';
-import 'package:refresh_wall/Model/search.dart';
+import 'package:refresh_wall/Model/CategorieModel.dart';
+import 'package:refresh_wall/CategorieTile/categorieTile.dart';
+import 'package:refresh_wall/CategorieTile/categorieTileData.dart';
+import 'package:refresh_wall/SearchPage/search.dart';
 
 void main() {
   runApp(MyApp());
@@ -87,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(
             height: 80,
             child: ListView.builder(
-                padding: EdgeInsets.symmetric(horizontal: 24),
+                padding: EdgeInsets.symmetric(horizontal: 18),
                 scrollDirection: Axis.horizontal,
                 shrinkWrap: true,
                 itemCount: categories.length,
@@ -121,6 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             Expanded(
               child: TextField(
+                controller: searchController,
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: "Search",
